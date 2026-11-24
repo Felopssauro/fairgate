@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Reproduz todos os resultados do artigo a partir do zero.
-# Uso: bash reproduzir.sh            (experimento completo, ~30-40 min com 4 vCPUs)
+# Uso: bash reproduzir.sh            (experimento completo, ~25 min com 4 vCPUs)
 set -euo pipefail
 cd "$(dirname "$0")"
 

@@ -43,7 +43,7 @@ FairGate-artefato/
 | Sistema operacional | Linux (máquina virtual) | Linux ou macOS; Windows via WSL |
 | CPU | 4 vCPUs | 2 núcleos |
 | Memória | não registrada | 4 GB |
-| Disco | ~400 MB após a execução completa | 1 GB livre |
+| Disco | ~650 MB após a execução completa (modelos e conjuntos de teste) | 1 GB livre |
 | Python | 3.13 | 3.13 |
 | Rede | só para `pip install` | idem |
 
@@ -75,7 +75,7 @@ echo "código de saída do FairGate: $?"               # 1 = reprovou
 
 Resultado esperado: o teste de acurácia passa (acurácia 0,8418), e o FairGate reprova com três violações, a mesma saída mostrada no artigo e em `resultados_publicados/log_build_reprovado.txt`. Esse é o resultado central do trabalho: o teste tradicional deixa passar um modelo enviesado que o portão bloqueia.
 
-### 4.2 Reprodução completa (cerca de 40 minutos com 4 vCPUs)
+### 4.2 Reprodução completa (cerca de 25 minutos com 4 vCPUs)
 
 ```bash
 bash reproduzir.sh
@@ -89,13 +89,15 @@ O script executa, em ordem:
 4. o log de build reprovado → `resultados/log_build_reprovado.txt`;
 5. `verificar.py`: compara o que foi gerado com `resultados_publicados/`.
 
-A maior parte do tempo vem do treino dos modelos mitigados (Exponentiated Gradient, 2 a 3 minutos cada). Todas as etapas usam sementes fixas, portanto **métricas e decisões são determinísticas**: `verificar.py` deve informar `IDENTICA` para as duas tabelas e `IDENTICAS` para as 120 execuções. Os tempos dependem do hardware e não são comparados.
+A maior parte do tempo vem do treino dos modelos mitigados (Exponentiated Gradient, 2 a 3 minutos cada sob execução paralela).
+
+**Reprodução verificada (24/11/2026):** numa VM Linux nova (4 vCPUs Intel Xeon, Python 3.13.18, dependências de `requirements.txt`), `reproduzir.sh` levou cerca de 21 minutos. As 120 decisões, as 120 linhas de métricas, `tabela_metricas.csv`, `tabela_decisoes.csv` e `log_build_reprovado.txt` saíram idênticos aos publicados. Os tempos sequenciais do FairGate ficaram entre 1,79 e 1,99 s, contra 2,03 a 2,28 s no artigo. Todas as etapas usam sementes fixas. Na mesma configuração de hardware e software, métricas e decisões saem idênticas, e `verificar.py` informa `IDENTICAS`. Em outro processador, as métricas dos modelos mitigados podem variar um pouco por diferenças numéricas no treino (veja a seção 7). Por isso, `verificar.py` só considera falha quando alguma **decisão** muda (teste de acurácia ou FairGate), e para as métricas informa a maior diferença encontrada. Os tempos dependem do hardware e não são comparados.
 
 ## 5. Como os testes foram realizados
 
 ### 5.1 Ambiente
 
-Todas as etapas foram executadas **localmente**, numa máquina virtual Linux com 4 vCPUs e Python 3.13, e **não nos servidores do GitHub Actions**. Para que a avaliação fosse fiel à esteira, `experimento.py` chama cada etapa do workflow como um **subprocesso independente**, com os mesmos comandos e argumentos do `fairness.yml`, e decide o resultado pelo **código de saída** do processo (0 = passou, 1 = reprovou), da mesma forma que o runner do GitHub Actions decide se um *step* falhou. O artigo declara isso na seção de limitações. A seção 7 mostra como rodar o workflow de verdade.
+As 120 execuções foram feitas **localmente**, numa máquina virtual Linux com 4 vCPUs e Python 3.13. Para que a avaliação fosse fiel à esteira, `experimento.py` chama cada etapa do workflow como um **subprocesso independente**, com os mesmos comandos e argumentos do `fairness.yml`, e decide o resultado pelo **código de saída** do processo (0 = passou, 1 = reprovou), da mesma forma que o runner do GitHub Actions decide se um *step* falhou. Além disso, o workflow foi executado de verdade no GitHub Actions para a semente 0, nos três perfis (seção 7).
 
 ### 5.2 Os quatro cenários (`treinar.py`)
 
@@ -168,7 +170,17 @@ Como as sementes rodam em paralelo, os tempos de `execucoes.csv` e `tempos.json`
 
 O arquivo `.github/workflows/fairness.yml` define a esteira: um job `qualidade-modelo` em matriz (um por cenário) com os passos treino → teste de acurácia → FairGate → upload do relatório JSON, e um job `deploy` que só roda se todos os jobs da matriz passarem.
 
-**Status:** os resultados do artigo **não** vieram de execuções nos servidores do GitHub; o workflow foi reproduzido localmente como descrito na seção 5.1. Para executá-lo de verdade:
+**Status:** as 120 execuções do artigo foram feitas localmente, como descrito na seção 5.1. Para validar a integração, o workflow também foi executado neste repositório, nos servidores do GitHub Actions, uma vez em cada perfil, com os modelos da semente 0 (12 jobs):
+
+| Perfil | Base | Enviesado | Mitigado-DP | Mitigado-EO | Deploy | Execução |
+|---|---|---|---|---|---|---|
+| Paridade | reprovado | reprovado | **aprovado** | reprovado | não executado | [45400738158](https://github.com/Felopssauro/fairgate/actions/runs/45400738158) |
+| Equalized odds | **aprovado** | reprovado | reprovado | **aprovado** | não executado | [45400823520](https://github.com/Felopssauro/fairgate/actions/runs/45400823520) |
+| Completo | reprovado | reprovado | reprovado | reprovado | não executado | [45400828391](https://github.com/Felopssauro/fairgate/actions/runs/45400828391) |
+
+As 12 decisões coincidem com as da semente 0 na execução local. O teste de acurácia passou nos 12 jobs. No runner, o passo do FairGate levou de 1 a 2 s, e o treino do Mitigado-EO cerca de 1 min. Na execução do perfil Completo, as métricas do Mitigado-EO diferiram das locais (por exemplo, razão de impacto por sexo de 0,561, contra 0,535), sem mudar a decisão. A causa provável são diferenças numéricas do hardware do runner no treino com Exponentiated Gradient; os outros três cenários deram valores idênticos em todas as execuções. A primeira execução ([45400462855](https://github.com/Felopssauro/fairgate/actions/runs/45400462855)) mostrou que, com o `fail-fast` padrão, a reprovação do cenário Base cancelava os demais jobs; por isso a matriz usa `fail-fast: false`.
+
+Para executar num repositório seu:
 
 1. Crie um repositório no GitHub e envie o conteúdo deste pacote para a branch `main` (a pasta `.github/` deve ficar na raiz).
 2. O push dispara o workflow com o perfil padrão (`paridade`). Em **Actions**, os jobs `base`, `enviesado` e `mitigado_eo` aparecem reprovados no passo "Portao de fairness (FairGate)", com as violações destacadas; `mitigado_dp` é aprovado; e o job `deploy` não roda. A matriz usa `fail-fast: false`, para que a reprovação de um cenário não cancele os outros.
