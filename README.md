@@ -1,6 +1,6 @@
 # FairGate: artefato de pesquisa
 
-Artefato do artigo **"FairGate: Auditoria Automatizada de Viés Algorítmico em Esteiras de CI/CD"**, submetido ao SBQS.
+Artefato do artigo **"FairGate: Auditoria Automatizada de Viés Algorítmico em Esteiras de CI/CD"**
 
 O FairGate é um portão de qualidade (*quality gate*) para esteiras de CI/CD. Ele carrega um modelo de classificação treinado e um conjunto de teste rotulado, calcula métricas de justiça algorítmica por atributo sensível e encerra com código de saída 1 (build reprovado, deploy bloqueado) quando algum limiar configurado é violado. Este pacote contém o código, a base de dados, os perfis de limiares, o workflow do GitHub Actions e os registros brutos das 120 execuções relatadas no artigo, além de scripts para reproduzi-las e conferi-las.
 
