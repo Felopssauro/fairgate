@@ -1,0 +1,5 @@
+# Perfil A - criterio de independencia: taxas de aprovacao semelhantes entre grupos
+atributos_sensiveis: [sex, race_bin]
+limiares:
+  diferenca_paridade_demografica: 0.10   # reprova se maior
+  razao_impacto_desigual: 0.80           # reprova se menor (regra dos 4/5)

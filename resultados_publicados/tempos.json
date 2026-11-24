@@ -1,0 +1,11 @@
+{
+  "fairgate_media_s": 6.29,
+  "fairgate_dp_s": 3.7,
+  "teste_acuracia_media_s": 4.949,
+  "treino_media_s": {
+    "base": 10.35,
+    "enviesado": 8.36,
+    "mitigado_dp": 127.93,
+    "mitigado_eo": 191.8
+  }
+}

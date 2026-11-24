@@ -1,0 +1,42 @@
+{
+  "base": {
+    "fairgate": [
+      2.04,
+      0.25
+    ],
+    "acuracia": [
+      1.49,
+      0.1
+    ]
+  },
+  "enviesado": {
+    "fairgate": [
+      2.03,
+      0.16
+    ],
+    "acuracia": [
+      1.45,
+      0.08
+    ]
+  },
+  "mitigado_dp": {
+    "fairgate": [
+      2.19,
+      0.16
+    ],
+    "acuracia": [
+      1.68,
+      0.13
+    ]
+  },
+  "mitigado_eo": {
+    "fairgate": [
+      2.28,
+      0.14
+    ],
+    "acuracia": [
+      1.74,
+      0.18
+    ]
+  }
+}

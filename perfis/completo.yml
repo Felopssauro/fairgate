@@ -1,0 +1,6 @@
+# Perfil C - todos os criterios ao mesmo tempo
+atributos_sensiveis: [sex, race_bin]
+limiares:
+  diferenca_paridade_demografica: 0.10
+  razao_impacto_desigual: 0.80
+  diferenca_equalized_odds: 0.10

@@ -1,0 +1,7 @@
+FairGate | acuracia=0.8418
+  sex: diferenca_paridade_demografica=0.2408, razao_impacto_desigual=0.088, diferenca_equalized_odds=0.4239
+  race_bin: diferenca_paridade_demografica=0.0999, razao_impacto_desigual=0.4997, diferenca_equalized_odds=0.1208
+RESULTADO: REPROVADO - deploy bloqueado
+  ::error::sex: paridade demografica 0.2408 > 0.1
+  ::error::sex: impacto desigual 0.088 < 0.8
+  ::error::race_bin: impacto desigual 0.4997 < 0.8

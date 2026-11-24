@@ -1,0 +1,46 @@
+name: FairGate - auditoria de fairness
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  # perfil de fairness adotado pela equipe: paridade, equalized_odds ou completo
+  PERFIL_FAIRNESS: paridade
+
+jobs:
+  qualidade-modelo:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cenario: [base, enviesado, mitigado_dp, mitigado_eo]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+      - name: Treinar modelo
+        run: python treinar.py --cenario ${{ matrix.cenario }} --semente 0
+      - name: Teste tradicional de acuracia
+        run: python teste_acuracia.py --modelo modelos/${{ matrix.cenario }}_s0.joblib --dados data/teste_s0.csv
+      - name: Portao de fairness (FairGate)
+        run: >
+          python fairgate.py --modelo modelos/${{ matrix.cenario }}_s0.joblib
+          --dados data/teste_s0.csv --config perfis/${{ env.PERFIL_FAIRNESS }}.yml
+          --relatorio relatorios/${{ matrix.cenario }}_s0.json
+      - name: Publicar relatorio
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-fairgate-${{ matrix.cenario }}
+          path: relatorios/
+
+  deploy:
+    needs: qualidade-modelo
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Deploy executado somente se todos os portoes passarem"

@@ -1,0 +1,4 @@
+# Perfil B - criterio de separacao: taxas de erro (TPR e FPR) semelhantes entre grupos
+atributos_sensiveis: [sex, race_bin]
+limiares:
+  diferenca_equalized_odds: 0.10         # reprova se maior

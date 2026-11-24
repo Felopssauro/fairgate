@@ -1,0 +1,13 @@
+cenario,perfil,sum,count
+base,completo,0,10
+base,equalized_odds,4,10
+base,paridade,0,10
+enviesado,completo,0,10
+enviesado,equalized_odds,0,10
+enviesado,paridade,0,10
+mitigado_dp,completo,0,10
+mitigado_dp,equalized_odds,0,10
+mitigado_dp,paridade,10,10
+mitigado_eo,completo,0,10
+mitigado_eo,equalized_odds,10,10
+mitigado_eo,paridade,0,10
