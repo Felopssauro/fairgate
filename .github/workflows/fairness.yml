@@ -2,18 +2,25 @@ name: FairGate - auditoria de fairness
 
 on:
   workflow_dispatch:
+    inputs:
+      perfil:
+        description: "Perfil de fairness"
+        type: choice
+        options: [paridade, equalized_odds, completo]
+        default: paridade
   push:
     branches: [main]
   pull_request:
 
 env:
   # perfil de fairness adotado pela equipe: paridade, equalized_odds ou completo
-  PERFIL_FAIRNESS: paridade
+  PERFIL_FAIRNESS: ${{ inputs.perfil || 'paridade' }}
 
 jobs:
   qualidade-modelo:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false   # cada cenario recebe sua propria decisao do portao
       matrix:
         cenario: [base, enviesado, mitigado_dp, mitigado_eo]
     steps:

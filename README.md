@@ -171,10 +171,11 @@ O arquivo `.github/workflows/fairness.yml` define a esteira: um job `qualidade-m
 **Status:** os resultados do artigo **não** vieram de execuções nos servidores do GitHub; o workflow foi reproduzido localmente como descrito na seção 5.1. Para executá-lo de verdade:
 
 1. Crie um repositório no GitHub e envie o conteúdo deste pacote para a branch `main` (a pasta `.github/` deve ficar na raiz).
-2. O push dispara o workflow. Em **Actions**, a execução mostrará os jobs `base` e `enviesado` reprovados no passo "Portao de fairness (FairGate)", com as violações destacadas, `mitigado_dp` aprovado e o job `deploy` não executado (porque o perfil padrão é `paridade`).
-3. Para testar outro perfil, mude `PERFIL_FAIRNESS` no YAML para `equalized_odds` ou `completo` e faça um novo commit.
+2. O push dispara o workflow com o perfil padrão (`paridade`). Em **Actions**, os jobs `base`, `enviesado` e `mitigado_eo` aparecem reprovados no passo "Portao de fairness (FairGate)", com as violações destacadas; `mitigado_dp` é aprovado; e o job `deploy` não roda. A matriz usa `fail-fast: false`, para que a reprovação de um cenário não cancele os outros.
+3. Para testar outro perfil, abra **Actions → FairGate - auditoria de fairness → Run workflow** e escolha `equalized_odds` ou `completo`. Outra opção é mudar o valor padrão de `PERFIL_FAIRNESS` no YAML e fazer um commit.
+4. O relatório JSON de cada job fica disponível para download em **Artifacts**, na página da execução.
 
-Os jobs da matriz rodam em paralelo; o mais lento é o `mitigado_eo`, cujo treino levou cerca de 3 minutos na VM local (o tempo num runner do GitHub pode ser diferente).
+Cada job treina um único modelo (semente 0), e o mais lento é o `mitigado_eo`.
 
 ## 8. Limitações do artefato
 
